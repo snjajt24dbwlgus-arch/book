@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우당탕탕 도서 탐험대 - 나만의 맞춤 책 찾기</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&family=Nanum+Pen+Script&display=swap');
+    
+    .font-jua {
+      font-family: 'Jua', sans-serif;
+    }
+    .font-dodum {
+      font-family: 'Gowun Dodum', sans-serif;
+    }
+    .font-pen {
+      font-family: 'Nanum Pen Script', cursive;
+    }
+
+    /* 애니메이션 효과 */
+    @keyframes spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 10s linear infinite;
+    }
+    @keyframes bounce-gentle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-bounce-gentle {
+      animation: bounce-gentle 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-amber-50 text-stone-800 min-h-screen flex flex-col font-dodum antialiased selection:bg-amber-200">
+
+  <!-- 상단 비주얼 헤더 -->
+  <header class="bg-gradient-to-b from-amber-400 to-amber-300 text-stone-900 py-8 px-4 text-center rounded-b-[2.5rem] shadow-md relative overflow-hidden">
+    <div class="absolute -top-10 -left-10 w-32 h-32 bg-amber-200 rounded-full opacity-50 blur-xl"></div>
+    <div class="absolute -bottom-10 -right-10 w-44 h-44 bg-amber-100 rounded-full opacity-60 blur-2xl"></div>
+    
+    <div class="max-w-4xl mx-auto relative z-10">
+      <span class="inline-block bg-stone-900 text-amber-300 text-xs px-3 py-1.5 rounded-full font-bold uppercase tracking-wider mb-2 animate-bounce-gentle">
+        <i class="fa-solid fa-compass mr-1"></i> 책의 세계로 떠나는 나침반
+      </span>
+      <h1 class="text-3xl md:text-5xl font-jua text-stone-900 tracking-wide drop-shadow-sm">
+        📖 우당탕탕 도서 탐험대
+      </h1>
+      <p class="text-sm md:text-base text-stone-800 font-semibold mt-2">
+        오늘 나의 마음과 취향에 딱 맞는 책은 무엇일까? 나만의 인생 도서를 찾아봐! (중학생 추천 도서 20선)
+      </p>
+    </div>
+  </header>
+
+  <!-- 메인 레이아웃 -->
+  <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-8 flex flex-col gap-8">
+    
+    <!-- 1단계: 세 가지 방법의 탐색 선택기 (탭 시스템) -->
+    <section class="bg-white rounded-3xl p-3 shadow-sm border-4 border-amber-200/50 flex flex-col md:flex-row gap-2">
+      <button onclick="switchTab('test')" id="tab-btn-test" class="tab-btn flex-1 py-3 px-4 rounded-2xl text-center font-jua text-lg flex items-center justify-center gap-2 bg-amber-400 text-stone-900 shadow-xs transition-all">
+        <i class="fa-solid fa-wand-magic-sparkles text-xl"></i> 취향 테스트로 찾기
+      </button>
+      <button onclick="switchTab('mood')" id="tab-btn-mood" class="tab-btn flex-1 py-3 px-4 rounded-2xl text-center font-jua text-lg flex items-center justify-center gap-2 text-stone-600 hover:bg-amber-100/50 transition-all">
+        <i class="fa-solid fa-heart-pulse text-xl"></i> 나의 감정/키워드로 찾기
+      </button>
+      <button onclick="switchTab('roulette')" id="tab-btn-roulette" class="tab-btn flex-1 py-3 px-4 rounded-2xl text-center font-jua text-lg flex items-center justify-center gap-2 text-stone-600 hover:bg-amber-100/50 transition-all">
+        <i class="fa-solid fa-circle-notch text-xl"></i> 행운의 책 룰렛 돌리기
+      </button>
+    </section>
+
+    <!-- 2단계: 탭 컨텐츠 구역 -->
+    <section class="bg-white p-6 md:p-8 rounded-3xl shadow-md border-2 border-amber-200/30 flex-grow min-h-[350px]">
+      
+      <!-- 탭 A: 독서 MBTI 테스트 -->
+      <div id="tab-content-test" class="tab-pane space-y-6">
+        <div class="text-center max-w-md mx-auto space-y-2">
+          <h2 class="text-2xl font-jua text-amber-800">🔮 책 MBTI: 나의 독서 탐험가 유형은?</h2>
+          <p class="text-xs text-stone-500">아래의 가벼운 3가지 질문에 정직하게 답하면 가장 잘 어울리는 추천책 패키지를 배송해 줍니다!</p>
+        </div>
+
+        <!-- 퀴즈 흐름 컨테이너 -->
+        <div id="quiz-flow-container" class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-2xl p-6 max-w-lg mx-auto min-h-[220px] flex flex-col justify-between">
+          <!-- JS가 퀴즈 질문을 동적으로 렌더링함 -->
+        </div>
+      </div>
+
+      <!-- 탭 B: 감정/태그 검색기 -->
+      <div id="tab-content-mood" class="tab-pane hidden space-y-6">
+        <div class="text-center space-y-2">
+          <h2 class="text-2xl font-jua text-stone-900">🎨 오늘 내 기분은 어때? 원하는 책을 필터해봐!</h2>
+          <p class="text-xs text-stone-500">기분 아이콘과 장르 태그를 자유롭게 조합하여 원하는 분위기의 책들을 만나보세요.</p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- 기분 선택 영역 -->
+          <div>
+            <span class="block text-xs font-bold text-stone-400 mb-2"><i class="fa-solid fa-smile-wink mr-1"></i> 오늘의 감정 필터</span>
+            <div class="flex flex-wrap gap-2" id="mood-tags-container">
+              <!-- JS 동적 기분 태그 탑재 -->
+            </div>
+          </div>
+
+          <!-- 장르 선택 영역 -->
+          <div>
+            <span class="block text-xs font-bold text-stone-400 mb-2"><i class="fa-solid fa-tags mr-1"></i> 장르/주제 필터</span>
+            <div class="flex flex-wrap gap-2" id="genre-tags-container">
+              <!-- JS 동적 장르 태그 탑재 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 필터 결과 안내 -->
+        <div class="border-t border-stone-100 pt-4 flex justify-between items-center">
+          <p class="text-xs text-stone-500" id="filter-result-count">조건에 일치하는 도서 목록이 아래에 실시간 업데이트됩니다.</p>
+          <button onclick="resetFilters()" class="text-xs font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1">
+            <i class="fa-solid fa-rotate-left"></i> 필터 초기화
+          </button>
+        </div>
+      </div>
+
+      <!-- 탭 C: 도서 룰렛기 -->
+      <div id="tab-content-roulette" class="tab-pane hidden flex flex-col items-center justify-center py-6 space-y-6">
+        <div class="text-center space-y-2 max-w-md">
+          <h2 class="text-2xl font-jua text-stone-900">🎰 결정장애 해결! 룰렛아 도와줘</h2>
+          <p class="text-xs text-stone-500">무슨 책을 읽어야 할지 전혀 모르겠다면, 우당탕탕 룰렛을 힘차게 돌려보세요!</p>
+        </div>
+
+        <!-- 룰렛 보드 시각효과 -->
+        <div class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center">
+          <!-- 회전하는 나선형 또는 원형 배경 -->
+          <div id="roulette-wheel" class="absolute inset-0 bg-gradient-to-tr from-amber-400 via-pink-300 to-indigo-400 rounded-full border-4 border-stone-900 shadow-lg flex items-center justify-center transition-transform duration-[3s] ease-out">
+            <div class="w-full h-full rounded-full grid grid-cols-2 grid-rows-2 opacity-80 divide-x divide-y divide-stone-900 overflow-hidden">
+              <div class="flex items-center justify-center"><i class="fa-solid fa-book-open text-stone-900 text-2xl"></i></div>
+              <div class="flex items-center justify-center"><i class="fa-solid fa-hat-wizard text-stone-900 text-2xl"></i></div>
+              <div class="flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-stone-900 text-2xl"></i></div>
+              <div class="flex items-center justify-center"><i class="fa-solid fa-rocket text-stone-900 text-2xl"></i></div>
+            </div>
+          </div>
+          <!-- 고정된 중앙 핀 -->
+          <div class="absolute w-12 h-12 bg-stone-900 text-amber-400 rounded-full flex items-center justify-center shadow-md border-2 border-white z-10">
+            <i class="fa-solid fa-location-arrow text-lg transform rotate-45"></i>
+          </div>
+        </div>
+
+        <!-- 룰렛 제어 버튼 -->
+        <button onclick="spinRoulette()" id="spin-btn" class="bg-amber-500 hover:bg-amber-600 text-stone-900 font-jua text-lg py-3 px-8 rounded-2xl shadow-md transition-transform hover:scale-105 flex items-center gap-2">
+          <i class="fa-solid fa-dice"></i> 룰렛 돌리기!
+        </button>
+
+        <!-- 결과용 모달/팝업 공간 -->
+        <div id="roulette-result-box" class="hidden text-center bg-amber-50 border-2 border-amber-400 p-4 rounded-2xl max-w-sm w-full animate-bounce-gentle">
+          <p class="text-xs text-amber-800 font-bold mb-1">🎉 룰렛 요정이 뽑아준 오늘의 인생 책!</p>
+          <h4 id="roulette-book-title" class="text-lg font-jua text-stone-900">도서명</h4>
+          <button onclick="scrollToBookResult()" class="text-xs text-stone-500 underline mt-1.5 inline-block">바로 보러 가기 <i class="fa-solid fa-arrow-down"></i></button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 3단계: 도서 결과 그리드 영역 -->
+    <section class="space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-jua text-stone-900 flex items-center gap-2">
+          <i class="fa-solid fa-library text-amber-600"></i> 탐험 대기 중인 추천 도서 목록
+        </h3>
+        <span class="text-xs bg-stone-200 text-stone-700 px-3 py-1 rounded-full font-bold" id="total-books-badge">도서 20권</span>
+      </div>
+
+      <!-- 실시간 추천 책 그리드 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="books-grid">
+        <!-- JS 동적 책 카드 삽입 공간 -->
+      </div>
+    </section>
+
+    <!-- 4단계: 나만의 버킷리스트 장바구니 -->
+    <section class="bg-stone-900 text-stone-100 rounded-[2rem] p-6 md:p-8 shadow-xl border-4 border-amber-400 relative overflow-hidden">
+      <!-- 배경 디자인 데코 -->
+      <div class="absolute -top-10 -right-10 w-36 h-36 bg-stone-800 rounded-full opacity-50"></div>
+      
+      <div class="relative z-10 space-y-6">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 border-b border-stone-800 pb-4">
+          <div>
+            <h3 class="text-2xl font-jua text-amber-400 flex items-center gap-2">
+              <i class="fa-solid fa-basket-shopping"></i> 내가 찜한 보물 도서 버킷리스트
+            </h3>
+            <p class="text-xs text-stone-400 mt-1">마음에 드는 도서의 '찜하기' 버튼을 누르면 나만의 읽기 바구니에 보관됩니다.</p>
+          </div>
+          <button onclick="clearBucketList()" class="self-start md:self-auto text-xs bg-stone-800 hover:bg-stone-700 text-stone-300 py-2 px-3.5 rounded-xl border border-stone-700 transition-colors">
+            <i class="fa-solid fa-trash-can mr-1"></i> 전체 비우기
+          </button>
+        </div>
+
+        <!-- 찜 도서 목록 목록 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="bucket-list-container">
+          <!-- 찜한 책 목록이 카드로 렌더링 -->
+          <div class="col-span-full py-8 text-center text-stone-500 text-sm">
+            <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i> 아직 담긴 도서 보물이 없습니다. 마음에 드는 책을 먼저 찜해봐요!
+          </div>
+        </div>
+
+        <!-- 복사 및 내보내기 영역 -->
+        <div class="flex flex-col sm:flex-row justify-between items-center pt-2 gap-4">
+          <span id="toast-msg" class="text-xs text-amber-400 opacity-0 transition-opacity font-bold">
+            📋 내 보물 도서 목록이 클립보드에 무사히 저장되었습니다!
+          </span>
+          <button onclick="copyBucketToClipboard()" class="w-full sm:w-auto bg-amber-400 hover:bg-amber-500 text-stone-900 font-jua py-3.5 px-6 rounded-2xl shadow-md transition-transform hover:scale-102 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-copy"></i> 보물 도서 목록 친구에게 공유하기
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="bg-stone-900 border-t border-stone-800 py-8 text-center text-xs text-stone-500 mt-16">
+    <div class="max-w-4xl mx-auto space-y-2">
+      <p class="text-stone-400">📖 우당탕탕 도서 탐험대 v1.6 - 언제나 즐거운 독서 습관 형성기</p>
+      <p>© 2026 초·중학생 맞춤형 교실 독서 지도 보조도구. 이 웹북파인더는 순수 교육적 목적으로 배포되었습니다.</p>
+    </div>
+  </footer>
+
+  <!-- 데이터 및 큐레이션 알고리즘 스크립트 -->
+  <script>
+    // 1. 도서 데이터베이스 (중학교 학생 권장 도서 20선)
+    const BOOK_DATABASE = [
+      {
+        id: "longnight",
+        title: "긴긴밤",
+        author: "루리",
+        genre: "감동/성장",
+        mood: ["눈물자극", "가슴따뜻"],
+        tags: ["우정", "성장", "생명"],
+        level: "중1~중2",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "지구상 마지막 남은 흰바위코뿔소와 작은 아기 펭귄이 함께 넓은 바다를 찾아 끝없는 긴긴밤을 이겨내는 감동적인 우정의 대장정.",
+        quote: "내가 더 나은 코뿔소가 되고 싶었던 이유는 오직 너였어.",
+        color: "bg-indigo-900 text-indigo-100"
+      },
+      {
+        id: "almond",
+        title: "아몬드",
+        author: "손원평",
+        genre: "감동/성장",
+        mood: ["가슴따뜻", "진지함"],
+        tags: ["성장", "감정", "우정"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "감정을 느끼지 못하는 괴물이라 불린 소년 '윤재'가 세상의 다양한 상처 입은 친구들과 만나 마주하며 마음의 눈을 뜨는 성장 소설.",
+        quote: "멀리 있는 것은 비극, 가까이 있는 것은 희극.",
+        color: "bg-stone-800 text-stone-100"
+      },
+      {
+        id: "wizardbakery",
+        title: "위저드 베이커리",
+        author: "구병모",
+        genre: "모험/판타지",
+        mood: ["신비로움", "진지함"],
+        tags: ["마법", "미스터리", "선택"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "우연히 숨어 들어간 밤에만 여는 빵집 '위저드 베이커리'에서 만난 인간들의 비밀스러운 마법적 욕망과 혹독한 그 대가 이야기.",
+        quote: "선택은 너의 몫이고, 그 책임 역시 너의 몫이다.",
+        color: "bg-purple-950 text-purple-100"
+      },
+      {
+        id: "timeshop",
+        title: "시간을 파는 상점",
+        author: "김선영",
+        genre: "추리/미스터리",
+        mood: ["진지함", "호기심"],
+        tags: ["시간", "의뢰", "우정"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐",
+        desc: "사람들의 간절하고 비밀스러운 시간 의뢰를 수행하며 숨겨진 진실을 하나씩 추적해가는 시간 주도적 청소년 미스터리 성장기.",
+        quote: "흐르는 시간은 잡을 수 없지만, 시간의 주인은 당신입니다.",
+        color: "bg-emerald-950 text-emerald-100"
+      },
+      {
+        id: "harrypotter",
+        title: "해리 포터와 마법사의 돌",
+        author: "J.K. 롤링",
+        genre: "모험/판타지",
+        mood: ["신비로움", "즐거움"],
+        tags: ["마법", "학교", "모험"],
+        level: "초등 전~중등",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "계단 밑 골방에서 살던 평범한 해리가 마법 학교 호그와트의 입학장을 받으며 시작되는 최고의 마법사 대모험기.",
+        quote: "가장 소중한 꿈을 쫓는 마법사가 되어보렴.",
+        color: "bg-amber-950 text-amber-100"
+      },
+      {
+        id: "cherryshrimp",
+        title: "체리새우: 비밀글입니다",
+        author: "황영미",
+        genre: "감동/성장",
+        mood: ["가슴따뜻", "즐거움"],
+        tags: ["학교생활", "친구관계", "자아"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "중학교 교실 속 은근한 눈치 싸움과 따돌림 속에서 타인의 시선에서 벗어나 진짜 자신을 사랑하는 법을 알아가는 다현이의 이야기.",
+        quote: "다섯 명이 같이 다니면 꼭 한 명은 소외되기 마련이었다. 하지만 나는 이제 눈치 보지 않기로 했다.",
+        color: "bg-rose-900 text-rose-100"
+      },
+      {
+        id: "paint",
+        title: "페인트",
+        author: "이희영",
+        genre: "과학/미래",
+        mood: ["호기심", "진지함"],
+        tags: ["부모선택", "미래사회", "성장"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "국가가 아이를 키워주는 미래 사회, 청소년들이 자신을 입양할 부모를 면접 보고 직접 선택한다는 기발하고도 묵직한 SF 성장 소설.",
+        quote: "부모는 자녀에게 하늘이 내려준 존재가 아니었다. 그것은 완벽하게 서로의 동의가 필요한 관계다.",
+        color: "bg-teal-950 text-teal-100"
+      },
+      {
+        id: "wheels",
+        title: "수레바퀴 아래서",
+        author: "헤르만 헤세",
+        genre: "감동/성장",
+        mood: ["진지함", "눈물자극"],
+        tags: ["classic", "공부", "방황"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐",
+        desc: "사회의 어른들과 억압적인 교육 체계의 압박 속에서 자신의 진정한 영혼과 삶의 의욕을 서서히 잃어가는 가련한 한 소년의 이야기.",
+        quote: "나무를 흔들지 말게. 가지가 꺾어질지 모르니.",
+        color: "bg-stone-900 text-amber-100"
+      },
+      {
+        id: "bicycletheif",
+        title: "자전거 도둑",
+        author: "박완서",
+        genre: "감동/성장",
+        mood: ["진지함", "가슴따뜻"],
+        tags: ["가치", "도시", "classic"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐",
+        desc: "정글 같은 서울 한복판에서 한 시골 소년 수남이가 오직 자전거를 타고 내달리며 부딪히는 돈 중심 가치관과 도덕적 갈등.",
+        quote: "정직함은 아무도 보는 사람이 없을 때 더욱 무겁게 지키는 법.",
+        color: "bg-teal-900 text-teal-100"
+      },
+      {
+        id: "detectiveholmes",
+        title: "셜록 홈즈: 주홍색 연구",
+        author: "아서 코난 도일",
+        genre: "추리/미스터리",
+        mood: ["호기심", "진지함"],
+        tags: ["탐정", "추리", "사건"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "명탐정 셜록 홈즈와 영원한 든든한 조력자 왓슨 박사의 역사적인 첫 만남과 빈집에서 발견된 의문의 주홍색 밀실 살인사건.",
+        quote: "불가능을 배제하고 남은 것은, 아무리 믿을 수 없더라도 진실이다.",
+        color: "bg-slate-900 text-slate-100"
+      },
+      {
+        id: "jdub",
+        title: "지적 대화를 위한 넓고 얕은 지식 1",
+        author: "채사장",
+        genre: "역사/사회",
+        mood: ["호기심", "진지함"],
+        tags: ["역사", "경제", "정치"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐",
+        desc: "어렵게만 느껴지던 역사, 경제, 정치, 사회를 하나의 매끄러운 쇠사슬처럼 유기적으로 엮어 세상을 바라보는 눈을 길러주는 교양 입문서.",
+        quote: "역사는 생산 수단을 소유하려는 사람과 지키려는 사람의 영원한 투쟁이다.",
+        color: "bg-yellow-950 text-yellow-100"
+      },
+      {
+        id: "animalfarm",
+        title: "동물농장",
+        author: "조지 오웰",
+        genre: "역사/사회",
+        mood: ["진지함", "호기심"],
+        tags: ["classic", "혁명", "풍자"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "인간 주인을 쫓아내고 '모든 동물의 평등'을 꿈꾸며 세운 농장이, 소수의 탐욕스러운 돼지 권력층에 의해 어떻게 타락하는지 보여주는 정치 풍자 소설.",
+        quote: "모든 동물은 평등하다. 그러나 어떤 동물들은 다른 동물들보다 더욱 평등하다.",
+        color: "bg-zinc-800 text-zinc-100"
+      },
+      {
+        id: "wonder",
+        title: "원더 (Wonder)",
+        author: "R.J. 팔라시오",
+        genre: "감동/성장",
+        mood: ["가슴따뜻", "눈물자극"],
+        tags: ["편견극복", "가족", "우정"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "남들과 조금 다른 외모를 가지고 태어난 아이 어기가 홈스쿨링을 벗어나 처음으로 진짜 중학교에 등교하며 세상을 두드리는 기적의 이야기.",
+        quote: "옳음과 친절함 중 하나를 선택해야 한다면, 항상 친절함을 선택하라.",
+        color: "bg-blue-900 text-blue-100"
+      },
+      {
+        id: "greenhouse",
+        title: "지구 끝의 온실",
+        author: "김초엽",
+        genre: "과학/미래",
+        mood: ["신비로움", "가슴따뜻"],
+        tags: ["SF", "환경", "기억"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐",
+        desc: "더 이상 사람이 살 수 없게 파멸해버린 멸망 이후의 지구에서, 홀로 푸른 안개와 빛을 품고 자라난 신비한 덩굴 식물과 구원의 온실 이야기.",
+        quote: "그때 우리는 아주 잠깐이었지만, 이 지구를 완전히 덮어버릴 수도 있겠다는 상상을 했었어요.",
+        color: "bg-emerald-900 text-emerald-100"
+      },
+      {
+        id: "gomsom",
+        title: "독고솜의 신비한 약방",
+        author: "허진희",
+        genre: "모험/판타지",
+        mood: ["신비로움", "즐거움"],
+        tags: ["마녀", "약방", "우정"],
+        level: "중1~중2",
+        rating: "⭐⭐⭐⭐",
+        desc: "마녀의 피를 이어받아 억울한 일들의 실타래를 해결해 주는 소녀 독고솜과 평범한 단비가 마주치는 기기묘묘한 우정과 연대의 판타지.",
+        quote: "마녀의 진짜 무기는 빗자루나 가마솥이 아니야. 바로 사람들의 마음을 꿰뚫어 보는 호기심이지.",
+        color: "bg-fuchsia-950 text-fuchsia-100"
+      },
+      {
+        id: "momo",
+        title: "모모 (Momo)",
+        author: "미하엘 엔데",
+        genre: "모험/판타지",
+        mood: ["신비로움", "진지함"],
+        tags: ["시간", "classic", "경청"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "사람들의 소중한 시간을 훔쳐가는 회색 신사들에 맞서, 오직 들어주는 눈부신 힘을 가진 작은 아이 모모가 펼치는 아름다운 시간 여행.",
+        quote: "시간은 삶이며, 삶은 우리 마음속에 있는 것이다.",
+        color: "bg-orange-950 text-orange-100"
+      },
+      {
+        id: "justice",
+        title: "청소년을 위한 정의란 무엇인가",
+        author: "마이클 샌델",
+        genre: "역사/사회",
+        mood: ["진지함", "호기심"],
+        tags: ["정의", "철학", "토론"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐",
+        desc: "구명보트의 식량 부족, 전차의 폭주 딜레마 등 우리가 일상에서 마주할 수 있는 모순적인 순간들을 통해 참다운 정의와 도덕을 논하는 인문 책.",
+        quote: "정의란 단순히 물질을 공정하게 나누는 법을 넘어, 더 가치 있는 삶의 태도를 공동으로 의논하는 것이다.",
+        color: "bg-sky-950 text-sky-100"
+      },
+      {
+        id: "physics",
+        title: "재밌어서 밤새는 물리 이야기",
+        author: "사마키 다케오",
+        genre: "과학/미래",
+        mood: ["호기심", "즐거움"],
+        tags: ["물리", "일상과학", "쉽게이해"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐",
+        desc: "복잡하고 머리 아픈 공식 암기는 던져라! 스마트폰, 무지개, 롤러코스터 등 일상 속에 꽁꽁 숨겨져 있던 물리적 원리들을 아주 흥미롭게 요리해 준다.",
+        quote: "아인슈타인도 처음에는 밤하늘의 시계 바늘이 왜 움직이는지 궁금해하던 꼬마 호기심대장에 불과했단다.",
+        color: "bg-cyan-950 text-cyan-100"
+      },
+      {
+        id: "luck",
+        title: "행운이 너에게 다가오는 중",
+        author: "이꽃님",
+        genre: "감동/성장",
+        mood: ["눈물자극", "가슴따뜻"],
+        tags: ["가정폭력", "연대", "우정"],
+        level: "중1~중3",
+        rating: "⭐⭐⭐⭐⭐",
+        desc: "가장 차가운 가정 폭력의 그늘 속에서 신음하면서도 서로를 지탱하며 기필코 살아 나가고자 힘껏 연대하고 손잡는 열다섯 아이들의 애틋한 위로.",
+        quote: "너는 혼자가 아니야. 내일 아침에도 해가 뜨듯이 기필코 행운이 너에게 다가오고 있으니까.",
+        color: "bg-red-950 text-red-100"
+      },
+      {
+        id: "yeolha",
+        title: "청소년을 위한 열하일기",
+        author: "박지원 (원저)",
+        genre: "역사/사회",
+        mood: ["즐거움", "호기심"],
+        tags: ["실학", "여행", "고전"],
+        level: "중2~고1",
+        rating: "⭐⭐⭐⭐",
+        desc: "조선 최고의 익살꾼이자 사상가인 연암 박지원이 청나라를 여행하며 작성한 세계 기상천외한 문명 관찰기이자 유머가 넘치는 기행 소설.",
+        quote: "우물 안에서 벗어나 저 강물을 보라. 온 천하의 기상천외한 이치들이 저 흙탕물 속에 넘실거리지 않는가.",
+        color: "bg-amber-950 text-amber-100"
+      }
+    ];
+
+    // 2. 퀴즈 데이터베이스 (독서 MBTI 유형 진단용)
+    const QUIZ_DATA = [
+      {
+        q: "Q1. 주말이나 쉬는 시간에 나의 마음을 더 설레게 하는 행동은?",
+        a1: "지도를 들고 가보지 않은 숲속 요새나 비밀 아지트 탐험하기",
+        a2: "조용한 방에 푹신하게 누워 은은한 음악을 들으며 생각에 잠기기",
+        type: "explorer" // explorer(a1) vs thinker(a2)
+      },
+      {
+        q: "Q2. 내가 이야기(영화, 책)를 볼 때 더 크게 끌리는 주인공의 처지는?",
+        a1: "우주 저편 외계 외침에 맞서 싸우거나 범인을 체포하려는 천재 탐정",
+        a2: "나와 비슷한 상처를 가졌지만 눈물겨운 우정으로 극복해 나가는 따뜻한 소년",
+        type: "rational" // rational(a1) vs emotional(a2)
+      },
+      {
+        q: "Q3. 책을 딱 한 장만 넘겼을 때 내가 원하는 첫인상 느낌은?",
+        a1: "눈이 팽팽 돌 정도로 무섭거나 엄청나게 신기하고 호기심 넘치는 묘사",
+        a2: "구절구절 가슴이 뭉클하고 깊고 편안해지는 한 문장",
+        type: "imaginative" // imaginative(a1) vs deep(a2)
+      }
+    ];
+
+    // 3. 상태 관리 변수
+    let activeTab = "test";
+    let currentQuizStep = 0;
+    let quizAnswers = []; // 누적된 응답 기록
+    let selectedMood = null;
+    let selectedGenre = null;
+    let myBucketList = []; // 장바구니 리스트
+
+    // 4. 초기화 함수
+    window.onload = function() {
+      renderBooks(BOOK_DATABASE);
+      renderQuizStep();
+      renderMoodTags();
+      renderGenreTags();
+    };
+
+    // 탭 전환 핸들러
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.add("hidden"));
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.className = "tab-btn flex-1 py-3 px-4 rounded-2xl text-center font-jua text-lg flex items-center justify-center gap-2 text-stone-600 hover:bg-amber-100/50 transition-all";
+      });
+
+      document.getElementById(`tab-content-${tabId}`).classList.remove("hidden");
+      document.getElementById(`tab-btn-${tabId}`).className = "tab-btn flex-1 py-3 px-4 rounded-2xl text-center font-jua text-lg flex items-center justify-center gap-2 bg-amber-400 text-stone-900 shadow-xs transition-all";
+    }
+
+    // [테스트 탭] 퀴즈 동적 출력 및 연산
+    function renderQuizStep() {
+      const container = document.getElementById("quiz-flow-container");
+      container.innerHTML = "";
+
+      if (currentQuizStep < QUIZ_DATA.length) {
+        const q = QUIZ_DATA[currentQuizStep];
+        container.innerHTML = `
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-xs bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">진행도: ${currentQuizStep + 1} / 3</span>
+            </div>
+            <h4 class="font-bold text-stone-950 text-sm md:text-base leading-relaxed">${q.q}</h4>
+            <div class="flex flex-col gap-2.5">
+              <button onclick="submitQuizAnswer(1)" class="text-left bg-white hover:bg-amber-100/50 border border-stone-200 p-3.5 rounded-xl text-xs md:text-sm text-stone-800 font-semibold transition-all shadow-xs">
+                👉 ${q.a1}
+              </button>
+              <button onclick="submitQuizAnswer(2)" class="text-left bg-white hover:bg-amber-100/50 border border-stone-200 p-3.5 rounded-xl text-xs md:text-sm text-stone-800 font-semibold transition-all shadow-xs">
+                👉 ${q.a2}
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        // 유형 산출 완료
+        const typeResult = calculateMBTIType();
+        container.innerHTML = `
+          <div class="text-center py-4 space-y-4">
+            <div class="text-4xl text-amber-500 animate-bounce-gentle"><i class="fa-solid fa-crown"></i></div>
+            <div>
+              <span class="text-xs font-bold text-amber-800 uppercase tracking-wider block">나의 독서 모험가 유형</span>
+              <h4 class="font-jua text-xl text-stone-900 mt-1">${typeResult.name}</h4>
+              <p class="text-xs text-stone-600 mt-2 leading-relaxed px-4">${typeResult.desc}</p>
+            </div>
+            <div class="flex gap-2 justify-center">
+              <button onclick="applyTestRecommendation('${typeResult.genre}')" class="bg-stone-900 hover:bg-stone-800 text-white font-jua py-2 px-4 rounded-xl text-xs transition-all">
+                🎁 찰떡궁합 추천책 보러 가기
+              </button>
+              <button onclick="resetQuiz()" class="bg-stone-200 hover:bg-stone-300 text-stone-700 font-jua py-2 px-3 rounded-xl text-xs transition-all">
+                다시 하기
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function submitQuizAnswer(val) {
+      quizAnswers.push(val);
+      currentQuizStep++;
+      renderQuizStep();
+    }
+
+    function resetQuiz() {
+      currentQuizStep = 0;
+      quizAnswers = [];
+      renderQuizStep();
+      renderBooks(BOOK_DATABASE);
+    }
+
+    // 성향 진단 로직
+    function calculateMBTIType() {
+      const a1Count = quizAnswers.filter(ans => ans === 1).length;
+
+      if (a1Count === 3) {
+        return {
+          name: "미지의 세계를 달리는 무한 모험가형",
+          desc: "짜릿한 위험과 신비로운 미지의 사건, 지적 호기심을 극도로 자극하는 이야기를 좋아해요! 상상력 가득한 판타지 세계가 어울려요.",
+          genre: "모험/판타지"
+        };
+      } else if (a1Count === 2) {
+        return {
+          name: "사건의 단서를 쫓는 비밀 탐정형",
+          desc: "논리적이고 똑똑한 지식 탐험을 즐기는군요! 복선과 복선이 꼬인 추리 미스터리나 세상의 과학적 원리를 파헤치는 책이 강력 추천 대상입니다.",
+          genre: "추리/미스터리"
+        };
+      } else if (a1Count === 1) {
+        return {
+          name: "역사와 사회의 참 진실을 마주하는 지성파형",
+          desc: "의미 있는 이야기와 흥미진진한 인물의 삶, 실화 기반 이야기에 호기심을 지니고 있군요. 역사나 웹툰 기반의 가치관 성장에 관심이 깊은 멋쟁이입니다.",
+          genre: "역사/사회"
+        };
+      } else {
+        return {
+          name: "마음속 깊이 울림을 전해받는 따뜻한 감성형",
+          desc: "가슴 뭉클한 동물과의 교감, 따스한 우정, 우당탕탕 성장하는 가슴 따뜻한 이야기에 감수성을 촉발받는 사람입니다. 긴 여운을 주는 감동 문학을 권합니다.",
+          genre: "감동/성장"
+        };
+      }
+    }
+
+    function applyTestRecommendation(genre) {
+      // 해당 장르로 즉시 필터링 후 앵커이동
+      const filtered = BOOK_DATABASE.filter(b => b.genre === genre);
+      renderBooks(filtered);
+      
+      const grid = document.getElementById("books-grid");
+      grid.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // [기분/태그 탭] 동적 버튼 출력
+    function renderMoodTags() {
+      const container = document.getElementById("mood-tags-container");
+      container.innerHTML = "";
+
+      const moods = [
+        { id: "눈물자극", label: "😭 눈물 펑펑 찡한 감동", icon: "fa-sad-tear" },
+        { id: "가슴따뜻", label: "☀️ 마음 온도가 훈훈해지는", icon: "fa-sun" },
+        { id: "신비로움", label: "✨ 마법 같은 판타지 비밀", icon: "fa-sparkles" },
+        { id: "호기심", label: "🧐 궁금해서 잘 수가 없는", icon: "fa-searchengin" },
+        { id: "즐거움", label: "😆 배꼽 잡고 웃고 싶을 때", icon: "fa-face-laugh-squint" },
+        { id: "진지함", label: "⚖️ 묵직하게 가치를 배우는", icon: "fa-scale-balanced" }
+      ];
+
+      moods.forEach(m => {
+        const btn = document.createElement("button");
+        btn.onclick = () => selectMood(m.id);
+        btn.className = `py-2 px-3 rounded-2xl border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+          selectedMood === m.id 
+            ? "bg-amber-400 border-amber-500 text-stone-950 font-bold shadow-xs scale-102"
+            : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+        }`;
+        btn.innerHTML = `<i class="fa-solid ${m.icon}"></i> ${m.label}`;
+        container.appendChild(btn);
+      });
+    }
+
+    function renderGenreTags() {
+      const container = document.getElementById("genre-tags-container");
+      container.innerHTML = "";
+
+      const genres = ["모험/판타지", "추리/미스터리", "감동/성장", "과학/미래", "역사/사회", "웹툰/만화"];
+
+      genres.forEach(g => {
+        const btn = document.createElement("button");
+        btn.onclick = () => selectGenre(g);
+        btn.className = `py-2 px-3 rounded-2xl border text-xs font-semibold flex items-center gap-1 transition-all ${
+          selectedGenre === g 
+            ? "bg-stone-900 border-stone-900 text-white font-bold scale-102"
+            : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+        }`;
+        btn.innerHTML = `<i class="fa-solid fa-bookmark text-amber-500 text-[10px]"></i> ${g}`;
+        container.appendChild(btn);
+      });
+    }
+
+    function selectMood(moodId) {
+      selectedMood = selectedMood === moodId ? null : moodId;
+      renderMoodTags();
+      applyFilters();
+    }
+
+    function selectGenre(genreName) {
+      selectedGenre = selectedGenre === genreName ? null : genreName;
+      renderGenreTags();
+      applyFilters();
+    }
+
+    function resetFilters() {
+      selectedMood = null;
+      selectedGenre = null;
+      renderMoodTags();
+      renderGenreTags();
+      renderBooks(BOOK_DATABASE);
+    }
+
+    function applyFilters() {
+      let filtered = BOOK_DATABASE;
+
+      if (selectedMood) {
+        filtered = filtered.filter(b => b.mood.includes(selectedMood));
+      }
+      if (selectedGenre) {
+        filtered = filtered.filter(b => b.genre === selectedGenre);
+      }
+
+      renderBooks(filtered);
+
+      const countBadge = document.getElementById("filter-result-count");
+      countBadge.innerText = `현재 선택한 필터에 도서가 총 ${filtered.length}건 검색되었습니다.`;
+    }
+
+    // [도서 룰렛] 기능
+    function spinRoulette() {
+      const wheel = document.getElementById("roulette-wheel");
+      const spinBtn = document.getElementById("spin-btn");
+      const resultBox = document.getElementById("roulette-result-box");
+
+      spinBtn.disabled = true;
+      spinBtn.classList.add("opacity-50");
+
+      // 랜덤 회전각 계산 (기본 3바퀴 이상 돌리게 하기)
+      const randomDegree = 1080 + Math.floor(Math.random() * 360);
+      wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+      // 결과 발표
+      setTimeout(() => {
+        spinBtn.disabled = false;
+        spinBtn.classList.remove("opacity-50");
+
+        // 랜덤 도서 1권 골라내기
+        const randomIndex = Math.floor(Math.random() * BOOK_DATABASE.length);
+        const chosenBook = BOOK_DATABASE[randomIndex];
+
+        const rTitle = document.getElementById("roulette-book-title");
+        rTitle.innerText = `📖 ${chosenBook.title} (${chosenBook.author})`;
+        
+        // 이동용 세팅
+        rTitle.setAttribute("data-target-id", chosenBook.id);
+
+        resultBox.classList.remove("hidden");
+      }, 3000); // 3초 회전 딜레이
+    }
+
+    function scrollToBookResult() {
+      const targetId = document.getElementById("roulette-book-title").getAttribute("data-target-id");
+      const targetElement = document.getElementById(`book-card-${targetId}`);
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // 노란색 깜빡임 강조 효과
+        targetElement.classList.add("ring-4", "ring-amber-500");
+        setTimeout(() => {
+          targetElement.classList.remove("ring-4", "ring-amber-500");
+        }, 2000);
+      }
+    }
+
+    // 도서 리스트를 그리드 카드 형태로 렌더링
+    function renderBooks(booksList) {
+      const container = document.getElementById("books-grid");
+      const totalBadge = document.getElementById("total-books-badge");
+      
+      container.innerHTML = "";
+      totalBadge.innerText = `도서 ${booksList.length}권`;
+
+      if (booksList.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-stone-500 bg-stone-100/50 rounded-2xl border-2 border-dashed border-stone-200">
+            <i class="fa-solid fa-face-frown text-4xl mb-3 block text-stone-300"></i>
+            <p class="font-bold text-stone-800">죄송해요! 해당하는 탐험책을 찾지 못했습니다.</p>
+            <p class="text-xs text-stone-500 mt-1">다른 기분이나 태그를 함께 눌러보세요.</p>
+          </div>
+        `;
+        return;
+      }
+
+      booksList.forEach(b => {
+        const isBucket = myBucketList.some(item => item.id === b.id);
+        const card = document.createElement("div");
+        card.id = `book-card-${b.id}`;
+        card.className = "bg-white border-2 border-stone-200/80 hover:border-amber-400 hover:shadow-lg rounded-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden relative group";
+
+        card.innerHTML = `
+          <!-- 책 커버 대용 배너 -->
+          <div class="${b.color} p-4 pb-12 relative flex flex-col justify-between h-36">
+            <span class="bg-white/20 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded self-start tracking-wider backdrop-blur-xs">
+              ${b.genre}
+            </span>
+            <div class="serif-font font-bold text-lg leading-tight mt-2 z-10 drop-shadow-md">
+              ${b.title}
+            </div>
+            <!-- 디자인 나뭇잎 효과 -->
+            <div class="absolute bottom-2 right-3 text-white/10 text-6xl pointer-events-none group-hover:scale-110 transition-transform">
+              <i class="fa-solid fa-feather-pointed"></i>
+            </div>
+          </div>
+
+          <!-- 세부 내용 공간 -->
+          <div class="p-4 flex-grow flex flex-col justify-between gap-4 -mt-8 bg-white rounded-t-2xl relative z-10 border-t border-stone-100">
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-xs text-stone-400 font-semibold">
+                <span>저자: ${b.author}</span>
+                <span>난이도: ${b.level}</span>
+              </div>
+              <p class="text-xs text-stone-600 leading-relaxed line-clamp-3">
+                ${b.desc}
+              </p>
+              
+              <!-- 감성 한 구절 -->
+              <div class="bg-amber-50/50 border-l-4 border-amber-300 p-2 text-[11px] text-stone-700 italic">
+                "${b.quote}"
+              </div>
+            </div>
+
+            <!-- 하단 정보 배지 및 버튼들 -->
+            <div class="space-y-3 pt-1">
+              <div class="flex flex-wrap gap-1.5">
+                ${b.tags.map(t => `<span class="bg-stone-100 text-stone-600 text-[10px] font-bold px-2 py-0.5 rounded-full">#${t}</span>`).join('')}
+              </div>
+              
+              <div class="flex gap-2 border-t border-stone-100 pt-3">
+                <button onclick="toggleBucket('${b.id}')" class="flex-1 py-2 px-3 rounded-xl font-jua text-xs transition-all flex items-center justify-center gap-1.5 ${
+                  isBucket 
+                    ? "bg-amber-100 border border-amber-400 text-amber-900" 
+                    : "bg-amber-400 hover:bg-amber-500 text-stone-900 shadow-xs"
+                }">
+                  <i class="fa-solid ${isBucket ? 'fa-heart text-red-500' : 'fa-heart-crack'}"></i>
+                  ${isBucket ? '보물 찜 완료!' : '내 보물함에 찜'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 찜하기 (장바구니) 토글 기능
+    function toggleBucket(bookId) {
+      const bookIndex = myBucketList.findIndex(item => item.id === bookId);
+      const chosenBook = BOOK_DATABASE.find(b => b.id === bookId);
+
+      if (bookIndex > -1) {
+        // 이미 찜목록에 존재한다면 해제
+        myBucketList.splice(bookIndex, 1);
+      } else {
+        // 새로 추가
+        myBucketList.push(chosenBook);
+      }
+
+      // 화면 즉시 리프레시
+      renderBooks(BOOK_DATABASE);
+      renderBucketList();
+    }
+
+    // 찜 도서 목록 렌더링
+    function renderBucketList() {
+      const container = document.getElementById("bucket-list-container");
+      container.innerHTML = "";
+
+      if (myBucketList.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-8 text-center text-stone-500 text-sm">
+            <i class="fa-solid fa-folder-open text-3xl mb-2 block text-stone-600"></i> 아직 담긴 도서 보물이 없습니다. 마음에 드는 책을 먼저 찜해봐요!
+          </div>
+        `;
+        return;
+      }
+
+      myBucketList.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "bg-stone-800 border border-stone-700 p-3 rounded-2xl flex justify-between items-center text-stone-200";
+
+        div.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-400 text-stone-900 flex items-center justify-center font-bold text-xs">
+              📖
+            </div>
+            <div>
+              <h4 class="font-bold text-xs text-white max-w-[150px] truncate">${item.title}</h4>
+              <p class="text-[10px] text-stone-400">${item.author} • ${item.genre}</p>
+            </div>
+          </div>
+          <button onclick="toggleBucket('${item.id}')" class="text-stone-400 hover:text-red-400 p-1.5 transition-colors">
+            <i class="fa-solid fa-circle-xmark text-sm"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function clearBucketList() {
+      myBucketList = [];
+      renderBooks(BOOK_DATABASE);
+      renderBucketList();
+    }
+
+    // 클립보드로 위시리스트 복사 공유
+    function copyBucketToClipboard() {
+      if (myBucketList.length === 0) {
+        // 에러메시지용 알림 모달 출력
+        const errOverlay = document.createElement("div");
+        errOverlay.className = "fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50";
+        errOverlay.innerHTML = `
+          <div class="bg-white rounded-2xl max-w-xs w-full p-5 text-center shadow-lg">
+            <i class="fa-solid fa-circle-exclamation text-3xl text-amber-500 mb-2"></i>
+            <h4 class="font-bold text-stone-900 text-sm">보물 도서 바구니가 비어 있습니다.</h4>
+            <p class="text-xs text-stone-500 mt-1">책 목록에서 갖고 싶은 책을 먼저 찜(담기)해주세요!</p>
+            <button onclick="this.parentElement.parentElement.remove()" class="mt-4 bg-stone-900 text-white text-xs py-2 px-4 rounded-lg font-bold">확인</button>
+          </div>
+        `;
+        document.body.appendChild(errOverlay);
+        return;
+      }
+
+      const reportText = `[우당탕탕 도서 탐험대 - 내가 찾은 도서 보물리스트]\n\n` +
+                         myBucketList.map((item, idx) => `⭐ [${idx+1}] ${item.title} (${item.author} 저)\n   - 장르: ${item.genre}\n   - 책 속 명구절: "${item.quote}"`).join("\n\n") +
+                         `\n\n독서 가이드: 이 도서들은 중학교 추천 필수 교양 서적입니다. 내일 서점이나 도서관에서 만나보아요!`;
+
+      // 클립보드 쓰기 (Fallback 완벽 호환)
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = reportText;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempTextArea);
+
+      // 토스트 메시지 알림 피드백
+      const toast = document.getElementById("toast-msg");
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
